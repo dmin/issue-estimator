@@ -1,0 +1,11 @@
+{
+  "name": "issue-estimator",
+  "version": "0.0.0",
+  "description": "Estimate time to complete issue (and all nested issues)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
