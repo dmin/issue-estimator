@@ -1,7 +1,5 @@
 name: 'Issue Estimator'
 description: 'Estimate time to complete issue (and all nested issues)'
-inputs:
-
 outputs:
   total:
     description: 'Total estimated time to complete issues'
