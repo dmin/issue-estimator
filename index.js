@@ -1,44 +1,30 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const fetchIssues = require("./fetchIssues");
+const fetchProjects = require("./fetchProjects");
+const processProject = require("./processProject");
 
-async function run() {
+async function run(token, user) {
   try {
-    const token = core.getInput("token");
-    const user = core.getInput("user");
+    token = token || core.getInput("token");
+    user = user || core.getInput("user");
     const octokit = github.getOctokit(token);
 
-    // TODO: Support pagination of issues / projects
-    // TODO: Combine queries?
-
-    const reckonAPI = await octokit.graphql(
-      `
-        query Issues($user: String!) {
-          repository(name: "reckon-api", owner: $user) {
-            name
-            issues(first:100, states: OPEN) {
-              edges {
-                node {
-                  number
-                  title
-                  body
-                }
-              }
-            }
-          }
-        }
-      `,
-      {
-        user,
-      }
-    );
-
-    console.log("Issues in Reckon API:");
-    reckonAPI.repository.issues.edges.forEach((edge) => {
-      console.log(edge.node.title);
-    });
+    return await main(octokit, user);
   } catch (error) {
     core.setFailed(error.message);
   }
 }
 
-run();
+async function main(octokit, user) {
+  const issues = await fetchIssues(octokit, user);
+  const projects = await fetchProjects(octokit, user);
+
+  return projects.map(processProject.bind(null, issues));
+}
+
+run().then((projects) => {
+  projects.forEach((project) => {
+    console.log(`(${project.estimate}) ${project.name}`);
+  });
+});
